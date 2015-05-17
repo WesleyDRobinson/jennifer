@@ -8,6 +8,7 @@
     <script src="/lodash/lodash.js"></script>
     <script src="/jquery/dist/jquery.js"></script>
     <script src="/bootstrap/dist/js/bootstrap.js"></script>
+    <script src="https://cdn.socket.io/socket.io-1.3.5.js"></script>
     <script src="/angular/angular.js"></script>
     <script src="/angular-ui-router/release/angular-ui-router.js"></script>
     <script src="/angular-animate/angular-animate.js"></script>
@@ -20,6 +21,6 @@
 </head>
 <body ng-app="FullstackGeneratedApp" ng-controller="FullscreenCtrl">
     <navbar ng-hide="isFullscreen"></navbar>
-    <div id="primary-ui-view" ui-view></div>
+    <div ng-class="isFullscreen ? '' : 'container'" id="primary-ui-view" ui-view></div>
 </body>
 </html>
