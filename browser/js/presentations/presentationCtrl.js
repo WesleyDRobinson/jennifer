@@ -1,4 +1,4 @@
-app.controller('PresentationCtrl',function ($scope, $stateParams, Session, PresentationFactory, ConferenceFactory, presentations, conferences) {
+app.controller('PresentationCtrl',function ($scope, $timeout, $stateParams, Session, PresentationFactory, ConferenceFactory, presentations, conferences) {
     //$scope.showImages = false;
     $scope.conferenceOptions = conferences;   // resolve method
     $scope.currentPresentationId = null;
@@ -8,7 +8,7 @@ app.controller('PresentationCtrl',function ($scope, $stateParams, Session, Prese
 
     $scope.displayPresentationMedia = function(id){
         $scope.editing = true;
-        console.log('presentations: ', $scope.presentations);
+
 
         $scope.presentationMedia = _.find($scope.presentations, {_id: id}).media;  // !!! creates a reference
         $scope.currentPresentationId = id;
@@ -19,8 +19,23 @@ app.controller('PresentationCtrl',function ($scope, $stateParams, Session, Prese
         $scope.presentationMedia.splice(index,1);    
     };
 
+    $scope.showPresentationSaved = function() {
+
+        $scope.saved = true;
+        var savedTimeout = $timeout(function() {
+
+            $scope.saved = false;
+            $timeout.cancel(savedTimeout);
+            savedTimeout = null;
+        }, 1000);
+    };
     $scope.savePresentation = function() {
-        PresentationFactory.savePresentation($scope.currentPresentationId, $scope.presentationMedia);
+        PresentationFactory.savePresentation($scope.currentPresentationId, $scope.presentationMedia)
+            .then(function(){
+                console.log('going here');
+                $scope.showPresentationSaved();
+            });
+
     };
 
     // TODO -- Remove if not being used
@@ -28,8 +43,10 @@ app.controller('PresentationCtrl',function ($scope, $stateParams, Session, Prese
     //    $scope.showImages = $scope.showImages ? false : true;
     //};
 
+
+
     $scope.sortableOptions = {
-        additionPlaceholderClass: 'presentation-a-s'
+        additionPlaceholderClass: 'presentation-thumbnail'
     };
 
     // functionality for creating a new presentation 
