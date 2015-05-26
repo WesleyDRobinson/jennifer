@@ -1,22 +1,18 @@
 var router = require('express').Router();
 var fs = require('fs');
 var AWS = require('aws-sdk');
+var secrets = require('./keys.js');
+var cloudconvert = new (require('cloudconvert'))(secrets.cloudKey);
 var sbuff = require('simple-bufferstream');
 var path = require('path');
-
-var secret_s3_key = require(path.join(__dirname, '../../../env')).S3.SECRET_KEY;
-var access_s3_key = require(path.join(__dirname, '../../../env')).S3.ACCESS_KEY;
-var bucket_s3 = require(path.join(__dirname, '../../../env')).S3.BUCKET;
-var cloud_key = require(path.join(__dirname, '../../../env')).CLOUD_CONVERT;
-var cloudconvert = new (require('cloudconvert'))(cloud_key);
 
 module.exports = router;
 
 router.post('/', function (req, res, next) {
 
     AWS.config.update({
-        "accessKeyId"    : access_s3_key,
-        "secretAccessKey": secret_s3_key
+        "accessKeyId"    : secrets.access_key,
+        "secretAccessKey": secrets.secret_key
     });
     AWS.config.region = 'us-east-1';
 
@@ -35,7 +31,7 @@ router.post('/', function (req, res, next) {
             function uploadBufferToS3 (buffer) {
                 var params = {
                     ACL        : 'public-read',
-                    Bucket     : bucket_s3,
+                    Bucket     : secrets.bucket,
                     Body       : buffer,
                     ContentType: mimetype,
                     Key        : s3Key
@@ -62,9 +58,9 @@ router.post('/', function (req, res, next) {
                         "input": "upload",
                         "output": {
                             "s3": {
-                                "accesskeyid": access_s3_key,
-                                "secretaccesskey": secret_s3_key,
-                                "bucket": bucket_s3,
+                                "accesskeyid": secrets.access_key,
+                                "secretaccesskey": secrets.secret_key,
+                                "bucket": secrets.bucket,
                                 "region": "us-east-1",
                                 "key": s3Key,
                                 "acl": "public-read"
@@ -79,7 +75,7 @@ router.post('/', function (req, res, next) {
                         //console.log("full data object: ", data);
                         var arrayLinks = [];
                         data.output.files.forEach( function (filenameInS3) {
-                            var link = 'https://s3.amazonaws.com/' + bucket_s3 + '/' + s3Key + '/' + filenameInS3;
+                            var link = 'https://s3.amazonaws.com/' + secrets.bucket + '/' + s3Key + '/' + filenameInS3;
                             arrayLinks.push(link);
                         });
                         fs.unlink(filename);
